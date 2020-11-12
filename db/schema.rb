@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_10_231700) do
+ActiveRecord::Schema.define(version: 2020_11_11_000044) do
 
   create_table "digits", primary_key: "digit", force: :cascade do |t|
   end
@@ -21,4 +21,8 @@ ActiveRecord::Schema.define(version: 2020_11_10_231700) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+
+  create_view "ninety_nine_sequences", sql_definition: <<-SQL
+      SELECT (d1.digit + (d2.digit * 10)) AS number FROM (digits d1 join digits d2) ORDER BY number asc
+  SQL
 end
