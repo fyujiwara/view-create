@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_11_000044) do
+ActiveRecord::Schema.define(version: 2020_11_12_160013) do
 
   create_table "digits", primary_key: "digit", force: :cascade do |t|
   end
@@ -24,5 +24,15 @@ ActiveRecord::Schema.define(version: 2020_11_11_000044) do
 
   create_view "ninety_nine_sequences", sql_definition: <<-SQL
       SELECT (d1.digit + (d2.digit * 10)) AS number FROM (digits d1 join digits d2) ORDER BY number asc
+  SQL
+  create_view "monthly_registered_users", sql_definition: <<-SQL
+      SELECT
+      Date('now', 'LocalTime', 'start of month', '+' || nns.number || ' Day') as registered_on,
+      IFNULL(COUNT(u.id),0) as users_count
+  FROM ninety_nine_sequences as nns
+  LEFT JOIN users as u ON Date('now', 'LocalTime', 'start of month', '+' || nns.number || ' Day') = Date(u.created_at, 'LocalTime')
+  WHERE Date('now', 'LocalTime', 'start of month', '+' || nns.number || ' Day')
+      BETWEEN Date('now', 'LocalTime', 'start of month') AND Date('now', 'LocalTime', 'start of month', '+1 month', '-1 day')
+  GROUP BY Date('now', 'LocalTime', 'start of month',  '+' || nns.number || ' Day')
   SQL
 end
